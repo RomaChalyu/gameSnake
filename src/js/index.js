@@ -1,3 +1,7 @@
+let counter = document.createElement('p');
+let container = document.querySelector('.container');
+counter.innerHTML = '0';
+container.appendChild(counter);
 
 let field = document.createElement('div');
 field.classList.add('field');
@@ -16,10 +20,8 @@ for(let i = 0; i < 100; i++){
     field.append(block);
 }
 
-let posSnakeX = Math.round(2 + Math.random() * (9 + 1 - 2)); 
-let posSnakeY = Math.round(2 + Math.random() * (9 + 1 - 2));
-let posFoodX = Math.round(Math.random() * (9+1)); 
-let posFoodY = Math.round(Math.random() * (9+1));
+let posSnakeX = Math.round(Math.random() * (9 -2) +2); 
+let posSnakeY = Math.round(Math.random() * (9 -2) +2);
 let exel = document.getElementsByClassName('exel');
 let snake = [];
 for(let i = 0; i < exel.length; i++){
@@ -30,21 +32,35 @@ for(let i = 0; i < exel.length; i++){
         snake.push(exel[i],exel[i-1],exel[i-2]);
     }
 }
-//доработать, убрать переменную temp
-let temp = false;
-    do {
-        posFoodX = Math.round(Math.random() * (9+1));
-        posFoodY = Math.round(Math.random() * (9+1));
-        for(let i = 0; i < exel.length; i++){
-            if(exel[i].getAttribute('posX') == posFoodX && exel[i].getAttribute('posY') == posFoodY){
-                temp =  exel[i].classList.contains('black');
-                temp === false ? temp = exel[i].classList.contains('head') : temp;
-                if(!temp){
-                    exel[i].classList.add('food');
-                }
+let createFood = () => {
+    let posFoodX = Math.round(Math.random() * 9); 
+    let posFoodY = Math.round(Math.random() * 9);
+    for(let i = 0; i < exel.length; i++){
+        if(exel[i].getAttribute('posX') == posFoodX && exel[i].getAttribute('posY') == posFoodY){
+            if(exel[i].classList.contains('black') || exel[i].classList.contains('head')){
+                return createFood();
+            }
+            let a = Math.round(Math.random() * (5 -1) +1);
+                
+            if(a ===1){
+                exel[i].classList.add('food');
+            }
+            if(a ===2){
+                exel[i].classList.add('food2');
+            }
+            if(a ===3){
+                exel[i].classList.add('food3');
+            }
+            if(a ===4){
+                exel[i].classList.add('food4');
+            }
+            if(a ===5){
+                exel[i].classList.add('food5');
             }
         }
-    } while (temp);
+    }
+}
+createFood();
 
 let direction = 0;
 let headX = 0;
@@ -57,8 +73,16 @@ let down;
 document.addEventListener('keyup',() => {
      headX = snake[0].getAttribute('posX');
      headY = snake[0].getAttribute('posY');
-    if(event.key === 'ArrowDown' && direction !== 'ArrowUp'){
+    if(event.key === 'ArrowDown' && direction !== 'ArrowUp' && direction !== 'ArrowDown'){
         direction = 'ArrowDown';
+        down = setInterval(() =>{
+            if(direction === 'ArrowDown'){
+                ArrowDown();
+            }
+            else{
+                clearInterval(down);
+            } 
+        },500);
     }
     if(event.key === 'ArrowUp' && direction !== 'ArrowDown' && direction !== 'ArrowUp'){
         direction = 'ArrowUp';
@@ -73,6 +97,14 @@ document.addEventListener('keyup',() => {
     }
     if(event.key === 'ArrowLeft' && direction !== 'ArrowRight' && direction !== 'ArrowLeft'){
         direction = 'ArrowLeft';
+        left = setInterval(() =>{
+            if(direction === 'ArrowLeft'){
+                ArrowLeft();
+            }
+            else{
+                clearInterval(left);
+            } 
+        },500);
     }
     if(event.key === 'ArrowRight' && direction !== 'ArrowLeft' && direction !=='ArrowRight'){
         direction = 'ArrowRight';
@@ -87,24 +119,17 @@ document.addEventListener('keyup',() => {
         },500);
     }
 });
+
+
 function ArrowRight(){
     let header = document.querySelector(`[posx = "${(+headX + 1)}"][posy = "${headY}"]`);
     headX++;
-    if(headX === 10){
+    if(header.classList.contains('black')){
         clearInterval(Right);
-        snake[0].classList.add('game-over')
-        return
-    } 
-     snake[0].classList.remove('head');
-      snake[0].classList.add('black');
-      snake[snake.length -1].classList.remove('black');
-    let tail = snake.pop();
-    header.classList.add('head');
-    snake.unshift(header);
-    if(header.classList.contains('food')){
-        header.classList.remove('food');
-         snake.push(tail);
+        snake[0].classList.add('game-over');
+        return;
     }
+    move(header,headX); 
     if(header.getAttribute('posX') === '9'){
         clearInterval(Right);
         setTimeout(() =>{
@@ -114,49 +139,40 @@ function ArrowRight(){
         },500)  
     };
 };
+
 function ArrowLeft(){
     let header = document.querySelector(`[posx = "${(+headX - 1)}"][posy = "${headY}"]`);
     headX--;
+    if(header.classList.contains('black')){
+        clearInterval(left);
+        snake[0].classList.add('game-over');
+        return;
+    }
+    move(header,headX);
     if(header.getAttribute('posX') === '0'){
         clearInterval(left);
-        if(direction === 'ArrowLeft'){
-
-        }
         setTimeout(() =>{
+        if(direction === 'ArrowLeft'){
                 snake[0].classList.add('game-over');
-        },500)  
+            }
+        },500);  
     };
-     snake[0].classList.remove('head');
-      snake[0].classList.add('black');
-      snake[snake.length -1].classList.remove('black');
-    let tail = snake.pop();
-    header.classList.add('head');
-    snake.unshift(header);
-    if(header.classList.contains('food')){
-        header.classList.remove('food');
-         snake.push(tail);
-    }
-
 };
 
 function ArrowUp(){
     let header = document.querySelector(`[posx = "${(+headX)}"][posy = "${+headY +1}"]`);
     headY++;
+    if(header.classList.contains('black')){
+        clearInterval(Up);
+        snake[0].classList.add('game-over');
+        return;
+    }
     if(headY === 10){
         clearInterval(Up);
         snake[0].classList.add('game-over');
         return;
     }
-     snake[0].classList.remove('head');
-      snake[0].classList.add('black');
-      snake[snake.length -1].classList.remove('black');
-    let tail = snake.pop();
-    header.classList.add('head');
-    snake.unshift(header);
-    if(header.classList.contains('food')){
-        header.classList.remove('food');
-         snake.push(tail);
-    }
+    move(header);
     if(header.getAttribute('posY') === '9'){
         clearInterval(Up);
         setTimeout(() =>{
@@ -166,59 +182,77 @@ function ArrowUp(){
         },500)  
     };
 };
+function ArrowDown(){
+    let header = document.querySelector(`[posx = "${(+headX)}"][posy = "${+headY -1}"]`);
+    headY--;
+    if(header.classList.contains('black')){
+        clearInterval(down);
+        snake[0].classList.add('game-over');
+        return;
+    }
+    if(headY === -1){
+        clearInterval(down);
+        snake[0].classList.add('game-over');
+        return;
+    }
+    move(header);
+    if(header.getAttribute('posY') === '0'){
+        clearInterval(down);
+        setTimeout(() =>{
+            if(direction === 'ArrowDown'){
+                snake[0].classList.add('game-over');
+            }
+        },500)  
+    };
+};
+
+function move (header,headX) {
+    if(headX === 10){
+        clearInterval(Right);
+        snake[0].classList.add('game-over')
+        return
+    };
+    if(headX === -1){
+        clearInterval(left);
+        snake[0].classList.add('game-over')
+        return;
+    };
+
+    snake[0].classList.remove('head');
+    snake[0].classList.add('black');
+    snake[snake.length -1].classList.remove('black');
+    let tail = snake.pop();
+    header.classList.add('head');
+    snake.unshift(header);
+    if(header.classList.contains('food') ||
+       header.classList.contains('food2') ||
+       header.classList.contains('food3') ||
+       header.classList.contains('food4') ||
+       header.classList.contains('food5')){
+
+        header.classList.remove('food');
+        header.classList.remove('food2');
+        header.classList.remove('food3');
+        header.classList.remove('food4');
+        header.classList.remove('food5');
+        snake.push(tail);
+        counter.innerHTML = +counter.innerHTML +1;
+        createFood();
+    }
+    return;
+}
+
+let arr = [0,0];
+for(let i = 0; i < 1000; i++){
+    let a = Math.random();
+    if(a <0.5){
+        arr[0] ++; 
+    }
+    else{
+        arr[1]++;
+    }
+}
 
 
 
 
-
-
-// let count0 = 0;
-// let count1 = 0;
-// let count2 = 0;
-// let count3 = 0;
-// let count4 = 0;
-// let count5 = 0;
-// let count6 = 0;
-// let count7 = 0;
-// let count8 = 0;
-// let count9 = 0;
-// let posFoodXX;
-// for(let i = 0; i <1000; i++){
-//     posFoodXX = Math.round(2 + Math.random() * (9 + 1 - 2));
-//     switch(posFoodXX) {
-//         case 0: 
-//             count0++;  
-//             break;
-//         case 1: 
-//             count1++;  
-//             break;
-//         case 2: 
-//             count2++;  
-//             break;
-//         case 3:
-//             count3++;  
-//             break;
-//         case 4:
-//             count4++;  
-//             break;
-//         case 5: 
-//             count5++;  
-//             break;
-//         case 6:
-//             count6++;  
-//             break;
-//         case 7:
-//             count7++;  
-//             break;
-//         case 8:
-//             count8++;  
-//             break;
-//         case 9:
-//             count9++;  
-//             break;
-//     }
-// }
-
-// let arr = ['count0: ' +count0,'count1: ' +count1,'count2: ' +count2,'count3: ' +count3,'count4: ' +count4,'count5: ' +count5,'count6: ' +count6,'count7: ' +count7,'count8: ' +count8,'count9: ' +count9];
-
-// console.log(arr);

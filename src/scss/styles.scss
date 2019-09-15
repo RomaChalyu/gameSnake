@@ -11,6 +11,7 @@
     height: 500px;
     width: 500px;
     margin: auto;
+    margin-top: -30px;
     background-color: aqua;
     margin-top: 100px;
 }
@@ -27,8 +28,36 @@
     background-color: black;
 }
 .food{
-    background-color: red;
+    background: url('../../image/1.png') no-repeat;
+    background-size: contain;
 }
+.food2{
+    background: url('../../image/2.png') no-repeat;
+    background-size: contain;
+}
+.food3{
+    background: url('../../image/3.png') no-repeat;
+    background-size: contain;
+}
+.food4{
+    background: url('../../image/4.png') no-repeat;
+    background-size: contain;
+}
+.food5{
+    background: url('../../image/5.png') no-repeat;
+    background-size: contain;
+}
+
 .game-over{
     background: blue;
+}
+
+.container{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    font-size: 30px;
+}
+.text{
+    margin-right: 10px;
 }
